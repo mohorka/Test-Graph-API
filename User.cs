@@ -1,7 +1,7 @@
 using System;
 namespace Test
 {
-    public class User
+    public class TestUser
     {
         public string Email{ get; private set; }
         public Guid Id{ get; private set; }

@@ -29,10 +29,10 @@ namespace Test
             throw new NotImplementedException();
         }
 
-        public async Task CreateMeetingAsync(string subject, DateTime start, DateTime end,  List<User> аttendees)
+        public async Task CreateMeetingAsync(string subject, DateTime start, DateTime end,  List<TestUser> аttendees)
         {
             var attendeesToAdd = new List<Attendee>();
-            foreach (User person in аttendees)
+            foreach (TestUser person in аttendees)
             {
                 attendeesToAdd.Add(new Attendee
                 {

@@ -37,7 +37,7 @@ namespace Test
                  .Request()
                  .AddAsync(group);*/
 
-            var group = new Group
+         /*   var group = new Group
             {
                 AdditionalData = new Dictionary<string, object>()
 	            {
@@ -50,6 +50,18 @@ namespace Test
         await graphClient.Groups["12a2e9ff-fe65-4b4f-b562-4480f7b7ced6"]
 	        .Request()
 	        .UpdateAsync(group);
+        
+        var _group = await graphClient.Groups["12a2e9ff-fe65-4b4f-b562-4480f7b7ced6"].Request().GetAsync();*/
+
+        var _users = await graphClient.Users.Request()
+            .Filter("startswith(userPrincipalName, 'st000001') or startswith(userPrincipalName, 'st000002') or startswith(userPrincipalName, 'st000003')")
+            .GetAsync();
+
+        foreach(User user in _users)
+        {
+           await graphClient.Groups["12a2e9ff-fe65-4b4f-b562-4480f7b7ced6"].Members.References.Request().AddAsync(user);
+        }
+  
             
 
 
