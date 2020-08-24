@@ -36,6 +36,7 @@ namespace Test
             await graphClient.Groups
                  .Request()
                  .AddAsync(group);*/
+
             var group = new Group
             {
                 AdditionalData = new Dictionary<string, object>()
@@ -49,11 +50,9 @@ namespace Test
         await graphClient.Groups["12a2e9ff-fe65-4b4f-b562-4480f7b7ced6"]
 	        .Request()
 	        .UpdateAsync(group);
-        
-       
+            
 
 
-       
             // get users : https://docs.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&tabs=csharp
 
             // var client = new MSGraphClient(graphClient);
