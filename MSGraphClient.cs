@@ -10,7 +10,7 @@ namespace Test
         private readonly GraphServiceClient _graphClient;
         public MSGraphClient(GraphServiceClient graphClient)
             => _graphClient = graphClient;
-        
+
         public Task AddMemberAsync(Guid memberId, Guid teamId)
         {
             // TODO: implement
@@ -29,7 +29,7 @@ namespace Test
             throw new NotImplementedException();
         }
 
-        public async Task CreateMeetingAsync(string subject, DateTime start, DateTime end,  List<User> аttendees)
+        public async Task CreateMeetingAsync(string subject, DateTime start, DateTime end, List<User> аttendees)
         {
             // var attendeesToAdd = new List<Attendee>();
             // foreach (User person in аttendees)
@@ -72,7 +72,7 @@ namespace Test
             // .Request()
             // .Header("Prefer","outlook.timezone=\"Pacific Standard Time\"")
             // .AddAsync(@event);
-        } 
+        }
 
         public Task<Guid> CreateTeamAsync(Guid discipline, Guid division, Guid contingentUnit, int year, int semester, ICollection<Guid> members = null)
         {
