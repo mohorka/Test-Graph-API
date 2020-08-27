@@ -31,47 +31,47 @@ namespace Test
 
         public async Task CreateMeetingAsync(string subject, DateTime start, DateTime end,  List<User> аttendees)
         {
-            var attendeesToAdd = new List<Attendee>();
-            foreach (User person in аttendees)
-            {
-                attendeesToAdd.Add(new Attendee
-                {
-                    EmailAddress = new EmailAddress
-                    {
-                        Name = person.FullName,
-                        Address = person.Email
-                    },
-                    Type = AttendeeType.Required
-                });
+            // var attendeesToAdd = new List<Attendee>();
+            // foreach (User person in аttendees)
+            // {
+            //     attendeesToAdd.Add(new Attendee
+            //     {
+            //         EmailAddress = new EmailAddress
+            //         {
+            //             Name = person.FullName,
+            //             Address = person.Email
+            //         },
+            //         Type = AttendeeType.Required
+            //     });
 
-            }
-            var @event = new Event
-            {
-                Subject = subject,
-                Body = new ItemBody
-                {
-                    ContentType = BodyType.Html,
-                    Content = "Some description"
-                },
-                Start = new DateTimeTimeZone
-                {
-                    DateTime = "2020-08-19T12:00:00",
-                    TimeZone = "Pacific Standard Time"
-                },
-                End = new DateTimeTimeZone
-                {
-                    DateTime = "2020-08-19T13:00:00",
-                    TimeZone = "Pacific Standard Time"
-                },
-                Attendees = attendeesToAdd,
-                IsOnlineMeeting = true,
-                OnlineMeetingProvider = OnlineMeetingProviderType.TeamsForBusiness
+            // }
+            // var @event = new Event
+            // {
+            //     Subject = subject,
+            //     Body = new ItemBody
+            //     {
+            //         ContentType = BodyType.Html,
+            //         Content = "Some description"
+            //     },
+            //     Start = new DateTimeTimeZone
+            //     {
+            //         DateTime = "2020-08-19T12:00:00",
+            //         TimeZone = "Pacific Standard Time"
+            //     },
+            //     End = new DateTimeTimeZone
+            //     {
+            //         DateTime = "2020-08-19T13:00:00",
+            //         TimeZone = "Pacific Standard Time"
+            //     },
+            //     Attendees = attendeesToAdd,
+            //     IsOnlineMeeting = true,
+            //     OnlineMeetingProvider = OnlineMeetingProviderType.TeamsForBusiness
 
-            };
-            await _graphClient.Me.Events
-            .Request()
-            .Header("Prefer","outlook.timezone=\"Pacific Standard Time\"")
-            .AddAsync(@event);
+            // };
+            // await _graphClient.Me.Events
+            // .Request()
+            // .Header("Prefer","outlook.timezone=\"Pacific Standard Time\"")
+            // .AddAsync(@event);
         } 
 
         public Task<Guid> CreateTeamAsync(Guid discipline, Guid division, Guid contingentUnit, int year, int semester, ICollection<Guid> members = null)

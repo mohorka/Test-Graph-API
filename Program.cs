@@ -2,6 +2,9 @@
 using Microsoft.Graph;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System.Threading;
 
 namespace Test
 {
@@ -13,59 +16,107 @@ namespace Test
             var authProvider = new ConfidentialGraphClientAuthenticationProvider(config);
             var graphClient = new GraphServiceClient(authProvider);
 
-            var users = await graphClient.Users
-            	.Request()
-            	.GetAsync();
-            //if (users == null){
-            //    Console.WriteLine("ops");
-            //}
-            
-           /* var group = new Group
+            var teamId = await graphClient.CreateGroup(
+                "Educational Group",
+                new[] {
+                    ("st000001@hypnospinnergmail.onmicrosoft.com", 0),
+                    ("st000002@hypnospinnergmail.onmicrosoft.com", 0),
+                    ("st000003@hypnospinnergmail.onmicrosoft.com", 1),
+                    ("st000004@hypnospinnergmail.onmicrosoft.com", 1),
+                    ("st000005@hypnospinnergmail.onmicrosoft.com", 1),
+                },
+                "edugroup1"
+            );
+
+            var groupId = "9f0d5e88-a9d6-42d6-8eed-ebff637517e4";
+        }
+    }
+
+    public static class GraphExtensions
+    {
+        public static async Task<string> CreateGroup(
+                    this GraphServiceClient client,
+                    string title,
+                    (string PrincipalName, int Role)[] members,
+                    string emailNickname)
+        {
+            var group = new Group
             {
-                Description = "First group",
-                DisplayName = "Test group",
-                GroupTypes = new List<String>()
+                DisplayName = title,
+                GroupTypes = new List<string>()
                 {
                     "Unified"
                 },
                 MailEnabled = true,
-                MailNickname = "testapp",
-                SecurityEnabled = false
+                MailNickname = emailNickname,
+                SecurityEnabled = false,
+                Visibility = "Private"
             };
 
-            await graphClient.Groups
-                 .Request()
-                 .AddAsync(group);*/
+            var groupId = (await client.Groups
+                .Request()
+                .Select("id")
+                .AddAsync(group)).Id;
 
-            var group = new Group
+            foreach (var (PrincipalName, Role) in members.Where(x => x.Role == 0))
+            {
+                var ownerId = (await client.Users[PrincipalName].Request().Select("id").GetAsync()).Id;
+
+                await client.Groups[groupId]
+                    .Owners
+                    .References
+                    .Request()
+                    .AddAsync(new DirectoryObject
+                    {
+                        Id = ownerId
+                    });
+
+                Task.Delay(1000).Wait();
+            }
+
+            foreach (var (PrincipalName, Role) in members.Where(x => x.Role == 1))
+            {
+                var memberId = (await client.Users[PrincipalName].Request().Select("id").GetAsync()).Id;
+
+                await client.Groups[groupId]
+                    .Members
+                    .References
+                    .Request()
+                    .AddAsync(new DirectoryObject
+                    {
+                        Id = memberId
+                    });
+
+                Task.Delay(1000).Wait();
+            }
+
+
+            client.BaseUrl = "https://graph.microsoft.com/beta";
+
+            var team = new Team
             {
                 AdditionalData = new Dictionary<string, object>()
-	            {
-		            {"members@odata.bind", "[\"https://graph.microsoft.com/v1.0/directoryObjects/dd96d6df-b69a-4fd4-a768-b9ad756129eb\",\"https://graph.microsoft.com/v1.0/directoryObjects/343a930b-a144-4e22-ac69-dc4f57416a24\",\"https://graph.microsoft.com/v1.0/directoryObjects/bfca7098-1615-4e2f-85f3-579759eecd5f\"]"}
-	            }
+                {
+                    {"template@odata.bind", "https://graph.microsoft.com/beta/teamsTemplates('standard')"},
+                    {"group@odata.bind", $"https://graph.microsoft.com/v1.0/groups('{groupId}')"}
+                }
             };
 
+            // TODO: understand why this request fails with Not Authorized response
+            var teamId = (await client.Teams
+                 .Request()
+                .AddAsync(team)).Id;
 
+            client.BaseUrl = "https://graph.microsoft.com/v1.0";
 
-        await graphClient.Groups["12a2e9ff-fe65-4b4f-b562-4480f7b7ced6"]
-	        .Request()
-	        .UpdateAsync(group);
-            
-
-
-            // get users : https://docs.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&tabs=csharp
-
-            // var client = new MSGraphClient(graphClient);
-
-            // var input = "";
-
-            // while (string.IsNullOrEmpty(input) || input != "exit") {
-            //     switch (input) {
-            //         "get-users": 
-
-            //             break;
-            //     }
-            // }
+            return teamId;
         }
     }
+
+    class UserFullData
+    {
+        public string UserPrincipalName { get; set; }
+        public string Id { get; set; }
+        public int Role { get; set; }
+    };
 }
