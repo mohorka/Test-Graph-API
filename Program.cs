@@ -1,10 +1,12 @@
 ﻿using System;
 using Microsoft.Graph;
+using Microsoft.Graph.Auth;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Threading;
+using Microsoft.Identity.Client;
 
 namespace Test
 {
@@ -12,23 +14,20 @@ namespace Test
     {
         static async Task Main(string[] args)
         {
+            var groupId = "2ff407f0-c73d-4180-9244-7dad8d71fdd2";
+
             var config = new ConfidentialGraphClientAuthenticationProviderConfiguration();
-            var authProvider = new ConfidentialGraphClientAuthenticationProvider(config);
+            // var authProvider = new ConfidentialGraphClientAuthenticationProvider(config);
+
+            var confidentialClientApplication = ConfidentialClientApplicationBuilder
+                .Create(config.ClientId)
+                .WithTenantId(config.TenantId)
+                .WithClientSecret(config.ClientSecret)
+                .Build();
+
+            var authProvider = new ClientCredentialProvider(confidentialClientApplication);
+
             var graphClient = new GraphServiceClient(authProvider);
-
-            var teamId = await graphClient.CreateGroup(
-                "Educational Group",
-                new[] {
-                    ("st000001@hypnospinnergmail.onmicrosoft.com", 0),
-                    ("st000002@hypnospinnergmail.onmicrosoft.com", 0),
-                    ("st000003@hypnospinnergmail.onmicrosoft.com", 1),
-                    ("st000004@hypnospinnergmail.onmicrosoft.com", 1),
-                    ("st000005@hypnospinnergmail.onmicrosoft.com", 1),
-                },
-                "edugroup1"
-            );
-
-            var groupId = "9f0d5e88-a9d6-42d6-8eed-ebff637517e4";
         }
     }
 
@@ -98,7 +97,7 @@ namespace Test
                 AdditionalData = new Dictionary<string, object>()
                 {
                     {"template@odata.bind", "https://graph.microsoft.com/beta/teamsTemplates('standard')"},
-                    {"group@odata.bind", $"https://graph.microsoft.com/v1.0/groups('{groupId}')"}
+                    {"group@odata.bind", $"https://graph.microsoft.com/v1.0/groups({groupId})"}
                 }
             };
 
@@ -111,12 +110,16 @@ namespace Test
 
             return teamId;
         }
-    }
 
-    class UserFullData
-    {
-        public string UserPrincipalName { get; set; }
-        public string Id { get; set; }
-        public int Role { get; set; }
-    };
+        public static async Task<string> CreateMeeting(
+            this GraphServiceClient client,
+            string groupId,
+            string MeetingTitle,
+            DateTime startsAt,
+            DateTime endsAt
+        )
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
